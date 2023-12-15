@@ -1,0 +1,10 @@
+.canvas-button-adddailynote {
+	cursor: pointer;
+}
+
+.canvas-node-dailynote .canvas-node-label:before {
+	content: "Daily Note:";
+	padding-right: 5px;
+	display: inline-block;
+	font-weight: bold;
+}
