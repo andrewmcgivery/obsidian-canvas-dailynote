@@ -1,4 +1,4 @@
-# Obsidian Ribbon Divider
+# Obsidian Canvas Daily Note
 
 A plugin for Obsidian.MD that allows you to add a daily note node to the canvas that will always show todays note.
 
