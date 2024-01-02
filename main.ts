@@ -5,6 +5,7 @@ import {
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	TAbstractFile,
 	TFile,
 	getIcon,
 } from "obsidian";
@@ -70,6 +71,15 @@ const DEFAULT_SETTINGS: CanvasDailyNotePluginSettings = {
 	skipSunday: false,
 };
 
+interface DailyNotePluginOptions {
+	folder: string;
+}
+
+interface DailyNotePlugin {
+	getDailyNote(): TFile;
+	options: DailyNotePluginOptions;
+}
+
 /**
  * This allows a "live-reload" of Obsidian when developing the plugin.
  * Any changes to the code will force reload Obsidian.
@@ -83,7 +93,7 @@ if (process.env.NODE_ENV === "development") {
 
 export default class CanvasDailyNotePlugin extends Plugin {
 	settings: CanvasDailyNotePluginSettings;
-	dailyNotePlugin: any;
+	dailyNotePlugin: DailyNotePlugin;
 
 	async onload() {
 		await this.loadSettings();
@@ -97,7 +107,9 @@ export default class CanvasDailyNotePlugin extends Plugin {
 		this.addSettingTab(new CanvasDailyNotePluginSettingTab(this.app, this));
 
 		// Hook into the file open event
-		this.app.workspace.on("file-open", this.handleFileOpen.bind(this));
+		this.registerEvent(
+			this.app.workspace.on("file-open", this.handleFileOpen.bind(this))
+		);
 	}
 
 	/**
@@ -154,10 +166,11 @@ export default class CanvasDailyNotePlugin extends Plugin {
 				}
 
 				// This will either get the existing note or create a new one. Either way, returns the file.
-				dailyFile =
-					(await this.dailyNotePlugin.getDailyNote()) as TFile;
+				dailyFile = await this.dailyNotePlugin.getDailyNote();
 
-				this.addDailyNote(canvas, dailyFile);
+				if (dailyFile instanceof TFile) {
+					this.addDailyNote(canvas, dailyFile);
+				}
 			});
 		}
 	}
@@ -193,15 +206,16 @@ export default class CanvasDailyNotePlugin extends Plugin {
 				canvas.removeNode(node);
 				canvas.requestSave();
 
-				dailyFile =
-					(await this.dailyNotePlugin.getDailyNote()) as TFile;
+				dailyFile = await this.dailyNotePlugin.getDailyNote();
 
-				this.addDailyNote(canvas, dailyFile, {
-					x: node.x,
-					y: node.y,
-					width: node.width,
-					height: node.height,
-				});
+				if (dailyFile instanceof TFile) {
+					this.addDailyNote(canvas, dailyFile, {
+						x: node.x,
+						y: node.y,
+						width: node.width,
+						height: node.height,
+					});
+				}
 			}
 		});
 	}
@@ -209,7 +223,7 @@ export default class CanvasDailyNotePlugin extends Plugin {
 	/**
 	 * Gets the existing daily note based on the daily notes plugin settings or returns null if it does not exist.
 	 */
-	getExistingDailyFile(): TFile | null {
+	getExistingDailyFile(): TFile | TAbstractFile | null | undefined {
 		const dailyFolder = this.dailyNotePlugin.options.folder;
 		const expectedNotePath = `${dailyFolder}/${new Date().getFullYear()}-${String(
 			new Date().getMonth() + 1
@@ -219,7 +233,7 @@ export default class CanvasDailyNotePlugin extends Plugin {
 		)}.md`;
 		let dailyFile = this.app.vault
 			.getAllLoadedFiles()
-			.find((file) => file.path === expectedNotePath) as TFile;
+			.find((file) => file.path === expectedNotePath);
 
 		return dailyFile;
 	}
