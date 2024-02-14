@@ -6,7 +6,7 @@ A plugin for Obsidian.MD that allows you to add a daily note node to the canvas 
 
 ## How to Install
 
-Plugin will be added to official repository shortly.
+Plugin is availale to isntall from the [Official Community Plugins](https://obsidian.md/plugins?id=canvas-dailynote).
 
 ## How to Use
 
