@@ -225,7 +225,10 @@ export default class CanvasDailyNotePlugin extends Plugin {
 	 */
 	getExistingDailyFile(): TFile | TAbstractFile | null | undefined {
 		const dailyFolder = this.dailyNotePlugin.options.folder;
-		const expectedNotePath = `${dailyFolder}/${new Date().getFullYear()}-${String(
+		const expectedNotePath = `${dailyFolder.replace(
+			/^\/|\\/,
+			""
+		)}/${new Date().getFullYear()}-${String(
 			new Date().getMonth() + 1
 		).padStart(2, "0")}-${String(new Date().getDate()).padStart(
 			2,
