@@ -231,9 +231,7 @@ export default class CanvasDailyNotePlugin extends Plugin {
 			2,
 			"0"
 		)}.md`;
-		let dailyFile = this.app.vault
-			.getAllLoadedFiles()
-			.find((file) => file.path === expectedNotePath);
+		let dailyFile = this.app.vault.getAbstractFileByPath(expectedNotePath);
 
 		return dailyFile;
 	}
